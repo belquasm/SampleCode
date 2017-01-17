@@ -1,0 +1,110 @@
+﻿@model Taclef.Authentication.Models.D2LLoginTestViewModel
+
+
+@*@using (Html.BeginForm("Launch", "D2L")) {
+	@Html.Hidden("id", "d2l-cforp")
+	
+	<table>
+		<tr>
+			<td>@Html.LabelFor(m => m.Login)</td>
+			<td>@Html.EditorFor(m => m.Login)</td>
+		</tr>
+		<tr>
+			<td>@Html.LabelFor(m => m.FirstName)</td>
+			<td>@Html.EditorFor(m => m.FirstName)</td>
+		</tr>
+		<tr>
+			<td>@Html.LabelFor(m => m.LastName)</td>
+			<td>@Html.EditorFor(m => m.LastName)</td>
+		</tr>
+		<tr>
+			<td>@Html.LabelFor(m => m.Email)</td>
+			<td>@Html.EditorFor(m => m.Email)</td>
+		</tr>
+		<tr>
+			<td>@Html.LabelFor(m => m.SelectedSchool)</td>
+			<td>@Html.DropDownListFor(m => m.SelectedSchool, Model.Schools.Select(s => new SelectListItem { Text = s.Name, Value = s.Id}))
+		</tr>
+		<tr>
+			<td>@Html.LabelFor(m => m.SelectedSchool)</td>
+			<td>@Html.DropDownListFor(m => m.SelectedSchool, Model.Schools.Select(s => new SelectListItem { Text = s.Name, Value = s.Id}))
+		</tr>
+		<tr>
+			<td>@Html.LabelFor(m => m.SelectedRole)</td>
+			<td>
+				@foreach (var role in Model.Roles) {
+					<label>
+						<input type="checkbox" name="@Html.NameFor(m => m.SelectedRole)" value="@role.Id"/>
+						@role.Name
+					</label>
+				}
+			</td>
+		</tr>
+	</table>
+	<input type="submit" value="Login"/>
+}*@
+
+
+@{
+	//ViewBag.Key = MessageSigner.CreateKey();
+}
+@*
+	<h3>Private Key</h3>
+<pre>@ViewBag.Key</pre>
+<h3>Public Key</h3>
+<pre>@MessageSigner.GetPublicKey(ViewBag.Key)</pre>
+<h3>Signature</h3>
+<pre>@MessageSigner.SignMessage("hello world", ViewBag.Key)</pre>
+Signature is valid: @MessageSigner.VerifySignature("hello world", MessageSigner.SignMessage("hello world", ViewBag.Key), MessageSigner.GetPublicKey(ViewBag.Key))
+*@
+
+
+<form method="post" id="LtiRequestForm" name="LtiRequestForm" action="@Url.Action("Launch", "D2L", new { id = "taclef-quiz"})" enctype="application/x-www-form-urlencoded">
+<input type="hidden" name="launch_presentation_locale" value="EN-US__">
+<input type="hidden" name="tool_consumer_instance_guid" value="">
+<input type="hidden" name="tool_consumer_instance_name" value="">
+<input type="hidden" name="tool_consumer_instance_description" value="">
+<input type="hidden" name="tool_consumer_instance_contact_email" value="">
+<input type="hidden" name="tool_consumer_info_version" value="10.3.0 SP17">
+<input type="hidden" name="tool_consumer_info_product_family_code" value="desire2learn">
+<input type="hidden" name="context_id" value="164993">
+<input type="hidden" name="context_title" value="Vote Compass Sandbox">
+<input type="hidden" name="context_label" value="Vote Compass Sandbox">
+<input type="hidden" name="context_type" value="">
+<input type="hidden" name="user_id" value="LCL_1906">
+<input type="hidden" name="roles" value="Student,Instructor,Administrator">
+<input type="hidden" name="lis_person_name_given" value="Stephen">
+<input type="hidden" name="lis_person_name_family" value="Bognar">
+<input type="hidden" name="lis_person_name_full" value="Stephen Bognar">
+<input type="hidden" name="lis_person_contact_email_primary" value="stephen.bognar@cforp.ca">
+<input type="hidden" name="ext_d2l_username" value="stephen.bognar">
+<input type="hidden" name="ext_d2l_orgdefinedid" value="stephen.bognar">
+<input type="hidden" name="ext_d2l_role" value="LMS_Admin">
+<input type="hidden" name="ext_tc_profile_url" value="https://cforp.desire2learn.com/d2l/api/ext/1.0/lti/tcservices">
+<input type="hidden" name="ext_d2l_token_id" value="4385032">
+<input type="hidden" name="ext_d2l_link_id" value="73">
+<input type="hidden" name="ext_d2l_token_digest" value="ThiSNhc1o+5BMFZVX1xoGDTkM04=">
+<input type="hidden" name="resource_link_id" value="204948590">
+<input type="hidden" name="resource_link_title" value="Civics: Open Mind Maps">
+<input type="hidden" name="resource_link_description" value="">
+<input type="hidden" name="lis_result_sourcedid" value="3095b279-39d6-4734-b3a7-a1a5b2a123a4">
+<input type="hidden" name="lis_outcome_service_url" value="https://cforp.desire2learn.com/d2l/le/lti/Outcome">
+<input type="hidden" name="lti_version" value="LTI-1p0">
+<input type="hidden" name="lti_message_type" value="basic-lti-launch-request">
+<input type="hidden" name="oauth_version" value="1.0">
+<input type="hidden" name="oauth_nonce" value="123616505">
+<input type="hidden" name="oauth_timestamp" value="1429734292">
+<input type="hidden" name="oauth_signature_method" value="HMAC-SHA1">
+<input type="hidden" name="oauth_consumer_key" value="elolms">
+<input type="hidden" name="oauth_callback" value="about:blank">
+<input type="hidden" name="oauth_signature" value="MZ0FFU79oLJrLynezuB5vqSwwMo=">
+<input type="submit" name="ext_basiclti_submit" value="Launch Endpoint with BasicLTI Data">
+</form>
+
+@section scripts {
+<script>
+	$(function() {
+		$('form#LtiRequestForm').submit();
+	});
+</script>	
+}

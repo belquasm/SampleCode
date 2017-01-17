@@ -1,0 +1,365 @@
+﻿@model Taclef.Authentication.Areas.D2LAdmin.Models.AddUsersViewModel
+@{
+    ViewBag.Title = "Ajouter des comptes D2L";
+}
+@using (Html.BeginForm())
+{
+    <div class="panel panel-default">
+
+        <div class="panel-heading">
+            <h2>Ajouter des comptes D2L</h2>
+        </div>
+
+        <div class="panel-body">
+            <div class="row">
+                @Html.ValidationSummary()
+            </div>
+            <div class="row">
+                <div class="form-group col-md-6">
+                    @Html.LabelFor(m => m.Provider)
+                    @Html.DropDownListFor(m => m.Provider, new SelectList(Model.Providers, "Name", "DisplayName"), new {@class = "form-control"})
+                </div>
+                <div class="form-group col-md-6">
+                    @Html.LabelFor(m => m.SchoolBoardId)
+                    
+                    @if (ViewBag.FormCollection != null && string.IsNullOrWhiteSpace(ViewBag.SchoolBoardId))
+                    {
+                        @Html.DropDownListFor(m => m.SchoolBoardId, Model.SchoolBoards, new { @class = "form-control, input-validation-error" })
+                        <span class="field-validation-error">Le conceil scolaire est requis</span>
+                    }
+                    else
+                    {
+                        @Html.DropDownListFor(m => m.SchoolBoardId, Model.SchoolBoards, new {@class = "form-control"})
+                    }
+                </div>
+            </div>
+
+            <table id="mainTable" class="table table-bordered table-responsive  table-striped">
+                <thead>
+                <tr>
+                    <th>Nom d'utilisateur</th>
+                    <th>Numéro d'employé</th>
+                    <th>Rôle</th>
+                    <th>École</th>
+                    <th style="width: 15%"></th>
+
+                </tr>
+                </thead>
+                <tbody>
+
+                @if (ViewBag.FormCollection != null)
+                {
+                    var logins = ViewBag.FormCollection["Login"].Split(',');
+                    var employeeNumbers = ViewBag.FormCollection["EmployeeNumber"].Split(',');
+                    var roles = ViewBag.FormCollection["RoleName"].Split(',');
+                    var schoolIds = ViewBag.FormCollection["SchoolId"].Split(',');
+                    for (int i = 0; i < logins.Length; i++)
+                    {
+                        foreach (var role in Model.Roles)
+                        {
+                            role.Selected = role.Value == roles[i];
+                        }
+
+                        foreach (var school in Model.Schools)
+                        {
+                            school.Selected = school.Value == schoolIds[i];
+                        }
+                        <tr>
+                            <td>
+                                @if (string.IsNullOrWhiteSpace(logins[i]))
+                                {
+                                     <input value="@logins[i]" title="Taper le nom d'utilisateur" placeholder="Nom d'utilisateur"   class="form-control input-validation-error" type="text" name="Login"/>
+                                    <span class="field-validation-error">Nom d'utilisatuer est requis</span>
+                                }
+                                else
+                                {
+                                     <input value="@logins[i]" title="Taper le nom d'utilisateur" placeholder="Nom d'utilisateur"   class="form-control" type="text" name="Login"/>
+                               
+  
+                                }
+                            </td>
+                            <td>
+                                @if (string.IsNullOrWhiteSpace(employeeNumbers[i]) && roles[i] == "Teacher")
+                                {
+                                    <input value="@employeeNumbers[i]" title="Taper le numéro d'employé" placeholder="Numéro d'employé"  class="form-control input-validation-error" type="number" maxlength="9" name="EmployeeNumber" />
+                                    <span class="field-validation-error">Le numéro d'employé est requis pour les enseignants</span>
+                                }
+                                else
+                                {
+                                    <input value="@employeeNumbers[i]" title="Taper le numéro d'employé" placeholder="Numéro d'employé"  class="form-control" type="number" maxlength="9" name="EmployeeNumber" />
+                                }
+                            </td>
+                            <td>@if (string.IsNullOrWhiteSpace(roles[i]))
+                                {
+                                    @Html.DropDownListFor(m => m.RoleName, Model.Roles, new {@class = "form-control input-validation-error", title = "Selectionner un rôle"})
+                                    <span class="field-validation-error">Le rôle est requis</span>
+                                }
+                                else
+                                {
+                                    @Html.DropDownListFor(m => m.RoleName, Model.Roles, new {@class = "form-control", title = "Selectionner un rôle"})
+                                }
+                            </td>
+                            <td>@if (string.IsNullOrWhiteSpace(schoolIds[i]) && (roles[i] == "Teacher" || roles[i] == "SchoolAdmin"))
+                                {
+                                    @Html.DropDownListFor(m => m.SchoolId, Model.Schools, new {@class = "form-control input-validation-error", title = "Selectionner une école"})
+                                    <span class="field-validation-error">L'école est requise pour les enseignants et directeurs d'écoles</span>
+                                }
+                                else
+                                {
+                                    @Html.DropDownListFor(m => m.SchoolId, Model.Schools, new {@class = "form-control", title = "Selectionner une école"})
+                                }
+                            </td>
+                           
+                            <td>
+                                <a href="#" title="Vérifier numéro d'employé" onclick=" checkEmployeeNumber(this); ">
+
+                                    <span class="glyphicon glyphicon-check"></span>
+
+                                </a>
+                                <span>&nbsp;&nbsp;</span>
+                                <a title="Effacer" onclick=" clearRow(this); " href="#">
+
+                                    <span class="glyphicon glyphicon-remove"></span>
+                                </a>
+                                <span>&nbsp;&nbsp;</span>
+                                <a title="Supprimer" onclick=" removeRow(this); " href="#">
+
+                                    <span class="glyphicon glyphicon-trash"></span>
+                                </a>
+
+
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td>
+                            <input title="Taper le nom d'utilisateur" placeholder="Nom d'utilisateur"    class="form-control" type="text" name="Login"/>
+                        </td>
+                        <td>
+                            <input title="Taper le numéro d'employé" placeholder="Numéro d'employé"  class="form-control" type="number" maxlength="9" name="EmployeeNumber"/>
+
+                        </td>
+                        <td>@Html.DropDownListFor(m => m.RoleName, Model.Roles, new {@class = "form-control", title = "Selectionner un rôle",   onchange = "changedRole(this)"})</td>
+                        <td>@Html.DropDownListFor(m => m.SchoolId, Model.Schools, new {@class = "form-control", title = "Selectionner une école"})</td>
+                        <td>
+                            <a href="#" title="Vérifier numéro d'employé" onclick=" checkEmployeeNumber(this); ">
+
+                                <span class="glyphicon glyphicon-check"></span>
+
+                            </a>
+                            <span>&nbsp;&nbsp;</span>
+                            <a title="Effacer" onclick=" clearRow(this); " href="#">
+
+                                <span class="glyphicon glyphicon-remove"></span>
+                            </a>
+                            <span>&nbsp;&nbsp;</span>
+                            <a title="Supprimer" onclick=" removeRow(this); " href="#">
+
+                                <span class="glyphicon  glyphicon-trash"></span>
+                            </a>
+
+
+                        </td>
+                    </tr>
+                }
+
+                </tbody>
+            </table>
+
+
+        </div>
+        <div class="panel-footer">
+            <div class="row">
+                <div class="col-md-6">
+                    <a title="Ajouter un compte" id="addRow" href="#">
+                        <h4 class="glyphicon glyphicon-plus"></h4>
+                        <span class="sr-only">Ajouter un compte</span>
+                    </a>
+                </div>
+                <div class="col-md-3">
+                    @Html.ActionLink("Annuler", "Index", new {provider = Model.Provider}, new {@class = "btn btn-primary"})
+                </div>
+                <div class="col-md-3">
+                    <input class="btn btn-primary" onclick=" onSubmit(); " type="submit" value="Sauvegarder"/>
+                </div>
+            </div>
+
+        </div>
+    </div>
+}
+@section scripts
+{
+    <script type="text/javascript">
+
+
+        function checkEmployeeNumber(anchor) {
+            var emplyeeNumberInput = $(anchor).parent().parent().find(':input[name="EmployeeNumber"]');
+            var loginInput = $(anchor).parent().parent().find(':input[name="Login"]');
+            var employeeNumber = emplyeeNumberInput.val();
+            var loginName = loginInput.val();
+
+
+            if ($.isNumeric(employeeNumber) && loginName !== '') {
+
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("CheckLoginEmployeeNumber")',
+                    data: { employeeNumber: employeeNumber, login: loginName, provider: '@Model.Provider' },
+                    beforeSend: function() {
+                        $(anchor).after('<span class="spinningIcon glyphicon glyphicon-refresh text-info spin"></span>');
+                        $(anchor).hide();
+                        $("span.text-warning").remove();
+
+                    },
+                    complete: function() {
+                        $(anchor).show();
+                        $(".spinningIcon").remove();
+                    },
+
+                    success: function(data) {
+
+                        if (data.Success) {
+
+                            $(anchor).addClass("text-success");
+
+
+                        } else {
+                            if (data.MessageEmployee) {
+                                emplyeeNumberInput.after('<span class="text-warning">' + data.MessageEmployee + '</span>');
+                            }
+                            if (data.MessageLogin) {
+                                loginInput.after('<span class="text-warning">' + data.MessageLogin + '</span>');
+                            }
+                            $(anchor).addClass("text-danger");
+
+                        }
+
+
+                    },
+                    error: function() {
+
+                        emplyeeNumberInput.after("<span class='text-warning'>Une erreur s'est produite</span>");
+
+
+                    }
+                });
+            }
+
+
+        }
+
+
+        function removeRow(anchor) {
+            var rowCount = $('#mainTable tr').length;
+            if (rowCount < 3)
+                return;
+            $(anchor).parent().parent().remove();
+        }
+
+        function clearRow(anchor) {
+
+            $(anchor).parent().parent().find(":input").val('');
+        }
+
+        function changedRole(select) {
+            var role = $(select).val();
+
+            if (role === "Teacher" || role === "SchoolAdmin") {
+                $(select).parent().parent().find("select[name=SchoolId]").removeAttr("disabled");
+                //$(select).parent().parent().find("select[name=SchoolId]").attr("required", "required");
+                //if (role === "Teacher") {
+                //    $(select).parent().parent().find("input[name=EmployeeNumber]").attr("required", "required");
+                //} else {// SchoolAdmin
+                //    $(select).parent().parent().find("input[name=EmployeeNumber]").removeAttr("required");
+                //    $(select).parent().parent().find("input[name=EmployeeNumber]").click();
+                //}
+
+
+            } else {// BoardAdmin
+
+                $(select).parent().parent().find("select[name=SchoolId]").val($(select).parent().parent().find("select[name=SchoolId] option:first").val());
+                $(select).parent().parent().find("select[name=SchoolId]").attr("disabled", "disabled");
+                //$(select).parent().parent().find("select[name=SchoolId]").removeAttr("required");
+                //$(select).parent().parent().find("input[name=EmployeeNumber]").removeAttr("required");
+                //$(select).parent().parent().find("input[name=EmployeeNumber]").click();
+            }
+        }
+
+        function onSubmit() {
+            var form = $("form:first");
+            var submit = true;
+            $(':input[required=""],:input[required]').each(function() {
+                if ($(this).val() === '') {
+                    submit = false;
+                    return false;
+                }
+            });
+            if (submit) {
+                $("select[name='SchoolId']").removeAttr("disabled");
+                form.submit();
+            }
+            return false;
+        }
+
+        $(document).ready(function() {
+
+            $("#SchoolBoardId").change(function() {
+                var selectedItem = $(this).val();
+
+
+                $.ajax({
+                    cache: false,
+                    type: "GET",
+                    url: "@(Url.Action("GetSchoolsByBoardId"))",
+                    data: { "boardId": selectedItem },
+                    success: function(data) {
+                        var ddlSchools = $("select[name='SchoolId']");
+                        ddlSchools.each(function() {
+                            if ($(this).val() === '') {
+                                $(this).html('<option value="">Selectionner une école</option>');
+                                for (var index = 0; index < data.length; index++) {
+                                    $(this).append($('<option></option>').val(data[index].id).html(data[index].name));
+                                }
+                            }
+
+                        });
+
+
+                    },
+                    error: function(xhr, ajaxOptions, thrownError) {
+                        alert('Une erreur lors du chargement des écoles');
+
+
+                    }
+                });
+            });
+
+
+            $("#addRow").click(function() {
+                var tr = $("tr:last");
+                var selectedRole = tr.find(':input[name="RoleName"]').val();
+                var selectedSchool = tr.find(':input[name="SchoolId"]').val();
+                var $clone = tr.clone();
+                $clone.find(':text').val('');
+                $clone.find(':input[type="number"]').val('');
+                $clone.find(':input[name="RoleName"]').val(selectedRole);
+                $clone.find(':input[name="RoleName"]').attr("onchange", "changedRole(this);");
+                $clone.find(':input[name="SchoolId"]').val(selectedSchool);
+                $clone.find('td span.text-warning').remove();
+                $clone.find('.field-validation-error').remove();
+                $clone.find('a').removeAttr('class');
+                tr.after($clone);
+
+            });
+
+            $("input,select").change(function() {
+                $(this).parent().find(".field-validation-error:first").remove();
+            });
+
+        });
+    </script>
+}
+      

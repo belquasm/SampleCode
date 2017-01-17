@@ -1,0 +1,141 @@
+﻿@using System.Linq
+@using System.Web.Mvc.Html
+@model Taclef.Authentication.Areas.D2LAdmin.Models.HomeIndexViewModel
+
+<div class="panel ">
+    <div class="panel-heading">
+        <h2>Utilisateurs D2L</h2>
+
+        <div class="form-inline">
+            @Html.LabelFor(m => m.Provider)
+            @Html.DropDownListFor(m => m.Provider, new SelectList(Model.Providers, "Name", "DisplayName"), new {@class = "form-control"})
+            <a title="Ajouter des comptes" href="@Url.Action("AddUsers")">
+                <h4 class="glyphicon glyphicon-plus"></h4>
+                <span class="sr-only">Ajouter des comptes</span>
+            </a>
+        </div>
+        @*<div class="col-md-6 form-group">
+                @Html.LabelFor(m => m.Keywords)
+                @Html.EditorFor(m => m.Keywords, new {htmlAttributes = new {@class = "form-control",@id="keywords"}})
+                <a title="Chercher" id="searchUsers" href="#">
+                    <h4 class="glyphicon glyphicon-search "></h4>
+                    <span class="sr-only">Chercher</span>
+                </a>
+            </div>*@
+
+    </div>
+
+    <div class="panel-body">
+
+
+        @if (Model.HasUsers)
+        {
+            <table id="indexTable" class="table table-bordered table-responsive  table-striped">
+                <thead>
+                <tr>
+                    <th>Nom</th>
+                    <th>Prénom</th>
+                    <th>Compte</th>
+                    <th>Courriel</th>
+                    <th>Numéro</th>
+                    <th>Rôle</th>
+                    <th style="width: 10%; " ></th>
+
+                </tr>
+                </thead>
+                <tbody>
+
+                @*@foreach (var user in Model.Users)
+                {
+                    <tr>
+                        <td>@user.LastName</td>
+                        <td>@user.FirstName</td>
+                        <td>@user.Login</td>
+                        <td>@user.Email</td>
+                        <td>@user.EmployeeNumber</td>
+                        <td>@user.Role</td>
+                        <td>
+                            <a href="@Url.Action("EditUser", null, new {id = user.Id})">
+                               
+                                <span class="glyphicon glyphicon-edit"></span>
+                            </a>
+                            |
+                            <a href="@Url.Action("DeleteUser", null, new { id = user.Id })">
+                                
+                                <span class="glyphicon glyphicon-remove"></span>
+                            </a>
+                          
+                        </td>
+                    </tr>
+                }*@
+
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script type="text/javascript"
+            src="@Url.Content("~/Scripts/jquery.dataTables.min.js")"></script>
+    <script type="text/javascript"
+            src="@Url.Content("~/Scripts/dataTables.bootstrap.js")"></script>
+    <script type="text/javascript">
+
+        $(document).ready(function() {
+            $('#indexTable').DataTable({
+                "bServerSide": true,
+                "sAjaxSource": "@Url.Action("GetAllUsers",new {@provider=@Model.Provider})",
+                "bProcessing": true,
+                "aoColumns": [
+                                { "sName": "LastName","bSearchable":true},
+                                { "sName": "FirstName" },
+                                { "sName": "Login" },
+                                { "sName": "Email" },
+                                { "sName": "EmployeeNumber" },
+                                { "sName": "RoleName"},
+                                { "sName": "",
+                                            "bSearchable": false,
+                                            "bSortable": false
+                                }
+                ],
+                "ajax": "@Url.Action("GetAllUsers",new {@provider=@Model.Provider})",
+                //"aoColumnDefs": [
+                //    { "bSortable": false, "aTargets": [6] }
+                //],
+                "language": {
+                    "paginate": {
+                        "next": "Prochain",
+                        "previous": "Précédent"
+                    },
+                    "processing": "Veuillez patienter svp ...",
+                    "lengthMenu": "Montrer _MENU_ records par page",
+
+                    "zeroRecords": "Aucun record",
+
+                    "info": "page _PAGE_ de _PAGES_",
+
+                    "infoEmpty": "Pas de records",
+
+                    "infoFiltered": "(cherchés  _MAX_ records)",
+
+                    "search": "Recherche:"
+
+
+                }
+            });
+            @*$("#searchUsers").click(function () {
+
+                var keywords = $("#keywords").val();
+
+                if (!keywords)
+                    return;
+                $.get('@Url.Action("Index")')
+
+            });*@
+
+        });
+    </script>
+
+
+}

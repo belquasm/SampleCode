@@ -1,0 +1,52 @@
+﻿@model Taclef.Authentication.Models.AuthResponseModel
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>TACLEF</title>
+</head>
+<body>
+	@if (!string.IsNullOrWhiteSpace(Model.Error)) {
+		<h3>@Model.Message</h3>
+		<pre>@Model.Error</pre>
+		if (Model.LtiData != null) {
+			<table>
+				@foreach (var pair in Model.LtiData) {
+					<tr>
+						<td><pre>@pair.Key</pre></td>
+						<td><pre>@pair.Value</pre></td>
+					</tr>
+				}
+			</table>
+		}
+	}
+
+	<form id="AuthForm" name="AuthForm" method="POST" action="@Model.Url" enctype="application/x-www-form-urlencoded">
+		<input type="hidden" name="message" value="@Model.Message"/>
+		@if (!string.IsNullOrWhiteSpace(Model.Signature))
+		{
+			<input type="hidden" name="signature" value="@Model.Signature" />
+		}
+		@if (!string.IsNullOrWhiteSpace(Model.Error))
+		{
+			<input type="hidden" name="error" value="@Model.Error" />
+		}
+	</form>
+	<script>
+		document.getElementById('AuthForm').style.display = 'none';
+		nei = document.createElement('input');
+		nei.setAttribute('type', 'hidden');
+		nei.setAttribute('name', 'auth_submit');
+		nei.setAttribute('value', 'Launch Endpoint');
+		document.getElementById('AuthForm').appendChild(nei);
+		@if (string.IsNullOrWhiteSpace(Model.Error)) {
+			<text>document.AuthForm.submit();</text>
+		}
+	</script>
+</body>
+</html>

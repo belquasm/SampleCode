@@ -1,0 +1,157 @@
+﻿@using System.Web.Mvc.Html
+@model Taclef.Authentication.Areas.D2LAdmin.Models.UserDetails
+
+@{
+    ViewBag.Title = " Mise à jour Utilisateur D2L";
+}
+
+@using (Html.BeginForm("EditUser", "Home", FormMethod.Post, new {@role = "form"}))
+{
+    <h4> Mise à jour Utilisateur D2L</h4>
+    <hr/>
+    @Html.ValidationSummary()
+    @Html.HiddenFor(model => model.Id)
+   
+    <div class="row">
+        <div class="form-group col-md-6">
+            @Html.LabelFor(model => model.FirstName, new {@class = "control-label"})
+            @Html.EditorFor(model => model.FirstName, new {htmlAttributes = new {@class = "form-control"}})
+            @Html.ValidationMessageFor(model => model.FirstName)
+
+        </div>
+
+        <div class="form-group col-md-6">
+            @Html.LabelFor(model => model.LastName, new {@class = "control-label"})
+            @Html.EditorFor(model => model.LastName, new {htmlAttributes = new {@class = "form-control"}})
+            @Html.ValidationMessageFor(model => model.LastName)
+
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group col-md-6">
+            @Html.LabelFor(model => model.Email, new {@class = "control-label"})
+            @Html.EditorFor(model => model.Email, new {htmlAttributes = new {@class = "form-control"}})
+            @Html.ValidationMessageFor(model => model.Email)
+
+        </div>
+
+        <div class="form-group col-md-6">
+            @Html.LabelFor(model => model.EmployeeNumber, new {@class = "control-label"})
+            @Html.EditorFor(model => model.EmployeeNumber, new {htmlAttributes = new {@class = "form-control", maxlength = "9"}})
+            @Html.ValidationMessageFor(model => model.EmployeeNumber)
+
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="form-group col-md-6">
+            @Html.LabelFor(model => model.Login, new {@class = "control-label"})
+            @Html.EditorFor(model => model.Login, new {htmlAttributes = new {@class = "form-control"}})
+            @Html.ValidationMessageFor(model => model.Login)
+
+        </div>
+        <div class="form-group col-md-6">
+            @Html.LabelFor(model => model.Roles, new {@class = "control-label"})
+            @Html.DropDownListFor(m => m.RoleName, Model.Roles, new {@class = "form-control"})
+            @Html.ValidationMessageFor(model => model.RoleName)
+
+        </div>
+
+    </div>
+
+    <div class="row">
+
+        <div class="form-group col-md-6">
+            @Html.LabelFor(model => model.SchoolBoards, new {@class = "control-label"})
+            @Html.DropDownListFor(m => m.SchoolBoardId, Model.SchoolBoards, new {@class = "form-control"})
+            @Html.ValidationMessageFor(model => model.SchoolBoardId)
+
+        </div>
+
+        <div class="form-group col-md-6">
+            @Html.LabelFor(model => model.Schools, new {@class = "control-label"})
+            @Html.DropDownListFor(m => m.SchoolId, Model.Schools, new {@class = "form-control"})
+            @Html.ValidationMessageFor(model => model.SchoolId)
+           
+            <span style="display: none" id="schools-loading-progress" class="spinningIcon glyphicon glyphicon-refresh text-info spin"></span>
+
+        </div>
+    </div>
+    <div class="row">
+
+        <div class="form-group col-md-6">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Sauvegarder" class="btn btn-primary"/>
+            </div>
+        </div>
+    </div>
+}
+
+
+@section Scripts{
+
+    <script type="text/javascript">
+        function RoleSet(role) {
+            if (role === "BoardAdmin") {
+                $("#SchoolId").val($("#SchoolId option:first").val());
+                $("#SchoolId").attr("disabled", "disabled");
+                //$("#SchoolId").removeAttr("required");
+            } else {
+                $("#SchoolId").removeAttr("disabled");
+                //$("#SchoolId").attr("required", "required");
+            }
+
+            //if (role === "Teacher") {
+            //    $("#EmployeeNumber").attr("required", "required");
+            //} else {
+            //    $("#EmployeeNumber").removeAttr("required");
+            //    $("#EmployeeNumber").click();
+            //}
+            
+        }
+        $(document).ready(function () {
+
+            var role = $("#RoleName").val();
+            if (role !== "") {
+                RoleSet(role);
+            }
+
+            $("#RoleName").change(function() {
+
+                var role = $(this).val();
+                RoleSet(role);
+
+            });
+
+            $("#SchoolBoardId").change(function () {
+                var selectedItem = $(this).val();
+                var ddlSchools = $("#SchoolId");
+                if (ddlSchools.is(":disabled"))
+                    return;
+                var schoolsProgress = $("#schools-loading-progress");
+                var schoolsErrorMessage = $("#schools-loading-error");
+                schoolsProgress.show();
+                $.ajax({
+                    cache: false,
+                    type: "GET",
+                    url: "@(Url.Action("GetSchoolsByBoardId"))",
+                    data: { "boardId": selectedItem },
+                    success: function (data) {
+                        ddlSchools.html('<option value="">Selectionner une école</option>');
+                        $.each(data, function (id, option) {
+                            ddlSchools.append($('<option></option>').val(option.id).html(option.name));
+                        });
+                        schoolsProgress.hide();
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        schoolsErrorMessage.val('Une erreur lors du chargement des écoles');
+                        schoolsErrorMessage.show();
+                        schoolsProgress.hide();
+                    }
+                });
+            });
+        });
+    </script>
+
+
+}
